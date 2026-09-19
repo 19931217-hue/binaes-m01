@@ -1,0 +1,2337 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>BINAES 3D - Moises Diaz</title>
+
+<style>
+
+/* =====================================================
+   GENERAL
+===================================================== */
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+
+    margin:0;
+
+    overflow:hidden;
+
+    background:#02050a;
+
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+
+/* =====================================================
+   PANEL PRINCIPAL
+===================================================== */
+
+#ui{
+
+    position:absolute;
+
+    top:20px;
+    left:20px;
+
+    z-index:20;
+
+    width:330px;
+
+    padding:16px 20px;
+
+    color:white;
+
+    background:rgba(5,12,24,.90);
+
+    border-radius:12px;
+
+    border:1px solid rgba(0,180,255,.55);
+
+    box-shadow:
+        0 0 25px rgba(0,80,160,.25);
+
+    pointer-events:none;
+}
+
+#ui h1{
+
+    margin:0 0 6px;
+
+    font-size:17px;
+
+    color:#19bfff;
+
+    letter-spacing:.4px;
+}
+
+#ui p{
+
+    margin:0;
+
+    font-size:11px;
+
+    color:#a9c9e8;
+
+    line-height:1.5;
+}
+
+
+/* =====================================================
+   NOMBRE
+===================================================== */
+
+#student{
+
+    position:absolute;
+
+    left:20px;
+
+    bottom:20px;
+
+    z-index:30;
+
+    padding:10px 15px;
+
+    background:rgba(3,10,20,.92);
+
+    border-left:3px solid #00cfff;
+
+    border-radius:7px;
+
+    color:white;
+
+    font-size:12px;
+
+    font-weight:bold;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.6);
+}
+
+
+/* =====================================================
+   BOTONES
+===================================================== */
+
+#floor-selector{
+
+    position:absolute;
+
+    top:20px;
+
+    right:20px;
+
+    z-index:30;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+}
+
+.btn-floor{
+
+    width:115px;
+
+    padding:10px 20px;
+
+    background:rgba(7,18,34,.94);
+
+    border:1px solid rgba(0,190,255,.7);
+
+    border-radius:8px;
+
+    color:white;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,.5);
+}
+
+.btn-floor:hover{
+
+    background:#008dcc;
+
+    color:white;
+
+    transform:scale(1.05);
+}
+
+.btn-floor.active{
+
+    background:#00bde8;
+
+    color:#001018;
+
+    border-color:#5ceaff;
+
+    box-shadow:
+        0 0 18px rgba(0,210,255,.55);
+}
+
+
+/* =====================================================
+   INFORMACION
+===================================================== */
+
+#floor-info{
+
+    position:absolute;
+
+    right:20px;
+
+    bottom:20px;
+
+    z-index:25;
+
+    width:350px;
+
+    padding:18px;
+
+    background:rgba(5,16,30,.95);
+
+    border:1.5px solid #00d9ff;
+
+    border-radius:13px;
+
+    color:white;
+
+    box-shadow:
+        0 0 28px rgba(0,190,255,.18);
+
+    backdrop-filter:blur(8px);
+}
+
+#floor-title{
+
+    font-size:16px;
+
+    font-weight:bold;
+
+    color:#00ddff;
+
+    margin-bottom:8px;
+
+    padding-bottom:6px;
+
+    border-bottom:
+        1px solid rgba(0,210,255,.3);
+}
+
+#floor-desc{
+
+    font-size:13px;
+
+    line-height:1.5;
+
+    color:#d9e7f4;
+}
+
+
+/* =====================================================
+   AYUDA
+===================================================== */
+
+#help{
+
+    position:absolute;
+
+    left:20px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    z-index:20;
+
+    padding:9px 12px;
+
+    border-radius:7px;
+
+    background:rgba(0,0,0,.35);
+
+    color:#8fa8bd;
+
+    font-size:10px;
+
+    line-height:1.7;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     TITULO
+===================================================== -->
+
+<div id="ui">
+
+    <h1>🔵 BINAES 3D - CENTRO HISTÓRICO</h1>
+
+    <p>
+        Modelo 3D interactivo de la
+        Biblioteca Nacional de El Salvador.
+    </p>
+
+</div>
+
+
+<!-- =====================================================
+     NOMBRE
+===================================================== -->
+
+<div id="student">
+
+    Moises Diaz - 1° Desarrollo de Software
+
+</div>
+
+
+<!-- =====================================================
+     AYUDA
+===================================================== -->
+
+<div id="help">
+
+    🖱️ Arrastrar → Rotar<br>
+    🔍 Rueda → Zoom<br>
+    🎯 Botones → Explorar pisos
+
+</div>
+
+
+<!-- =====================================================
+     NIVELES
+===================================================== -->
+
+<div id="floor-selector">
+
+    <button class="btn-floor"
+    onclick="selectFloor(7)">
+        Nivel 7
+    </button>
+
+    <button class="btn-floor"
+    onclick="selectFloor(6)">
+        Nivel 6
+    </button>
+
+    <button class="btn-floor"
+    onclick="selectFloor(5)">
+        Nivel 5
+    </button>
+
+    <button class="btn-floor"
+    onclick="selectFloor(4)">
+        Nivel 4
+    </button>
+
+    <button class="btn-floor"
+    onclick="selectFloor(3)">
+        Nivel 3
+    </button>
+
+    <button class="btn-floor"
+    onclick="selectFloor(2)">
+        Nivel 2
+    </button>
+
+    <button class="btn-floor"
+    onclick="selectFloor(1)">
+        Nivel 1
+    </button>
+
+    <button class="btn-floor"
+    onclick="selectFloor(0)">
+        Sótano
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     INFORMACION
+===================================================== -->
+
+<div id="floor-info">
+
+    <div id="floor-title">
+
+        Selecciona un nivel
+
+    </div>
+
+    <div id="floor-desc">
+
+        Haz clic en los niveles para
+        explorar el interior de la BINAES.
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     THREE.JS
+===================================================== -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+
+<script>
+
+/* =====================================================
+   INFORMACION DE LOS NIVELES
+===================================================== */
+
+const binaesData={
+
+0:{
+title:"Sótano",
+desc:"Área de apoyo y servicios internos, almacenamiento y espacios técnicos necesarios para el funcionamiento de la biblioteca."
+},
+
+1:{
+title:"Nivel 1: Ingreso y Galería Principal",
+desc:"Gran vestíbulo de acceso, espacios culturales, auditorio, áreas de consulta y servicios para visitantes."
+},
+
+2:{
+title:"Nivel 2: Primera Infancia",
+desc:"Espacio para niños de 0 a 7 años con literatura infantil, juegos educativos y áreas de aprendizaje."
+},
+
+3:{
+title:"Nivel 3: Niñez y Preadolescencia",
+desc:"Colecciones infantiles, áreas de lectura, tecnología educativa y espacios interactivos para niños y preadolescentes."
+},
+
+4:{
+title:"Nivel 4: Juventud y Cómics",
+desc:"Área juvenil con literatura, manga, cómics y espacios relacionados con la cultura popular."
+},
+
+5:{
+title:"Nivel 5: Colección General",
+desc:"Espacio de lectura, investigación y consulta de las diferentes colecciones bibliográficas."
+},
+
+6:{
+title:"Nivel 6: Tecnología",
+desc:"Zona dedicada a innovación, robótica, realidad virtual, creación digital y experiencias tecnológicas."
+},
+
+7:{
+title:"Nivel 7: Espacio Cultural",
+desc:"Área superior destinada a exposiciones, actividades culturales, reuniones y vistas del Centro Histórico."
+}
+
+};
+
+
+/* =====================================================
+   ESCENA
+===================================================== */
+
+const scene=
+new THREE.Scene();
+
+scene.background=
+new THREE.Color(0x02050a);
+
+scene.fog=
+new THREE.FogExp2(
+    0x02050a,
+    .003
+);
+
+
+/* =====================================================
+   CAMARA
+   🔵 CAMBIADA PARA VER LA ENTRADA
+===================================================== */
+
+const camera=
+new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth/
+    window.innerHeight,
+    .1,
+    1000
+);
+
+/*
+    IMPORTANTE:
+
+    La entrada está en Z negativo.
+
+    Por eso la cámara también está
+    en Z negativo.
+*/
+
+camera.position.set(
+    0,
+    38,
+    -88
+);
+
+
+/* =====================================================
+   RENDER
+===================================================== */
+
+const renderer=
+new THREE.WebGLRenderer({
+    antialias:true
+});
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+renderer.setPixelRatio(
+    Math.min(
+        window.devicePixelRatio,
+        2
+    )
+);
+
+renderer.shadowMap.enabled=true;
+
+document.body.appendChild(
+    renderer.domElement
+);
+
+
+/* =====================================================
+   CONTROLES
+===================================================== */
+
+const controls=
+new THREE.OrbitControls(
+    camera,
+    renderer.domElement
+);
+
+controls.enableDamping=true;
+
+controls.dampingFactor=.06;
+
+controls.minDistance=25;
+
+controls.maxDistance=140;
+
+controls.target.set(
+    0,
+    10,
+    0
+);
+
+
+/* =====================================================
+   ILUMINACION AZUL
+===================================================== */
+
+scene.add(
+    new THREE.AmbientLight(
+        0x173454,
+        .75
+    )
+);
+
+
+const mainLight=
+new THREE.DirectionalLight(
+    0xddeeff,
+    1
+);
+
+mainLight.position.set(
+    -30,
+    80,
+    -50
+);
+
+mainLight.castShadow=true;
+
+scene.add(
+    mainLight
+);
+
+
+/* Luz azul frontal */
+
+const blueLight=
+new THREE.PointLight(
+    0x00aaff,
+    3,
+    90
+);
+
+blueLight.position.set(
+    0,
+    12,
+    -30
+);
+
+scene.add(
+    blueLight
+);
+
+
+/* Luz blanca entrada */
+
+const entranceLight=
+new THREE.PointLight(
+    0x8feaff,
+    2,
+    18
+);
+
+entranceLight.position.set(
+    0,
+    5,
+    -9
+);
+
+scene.add(
+    entranceLight
+);
+
+
+/* =====================================================
+   MATERIALES
+===================================================== */
+
+const glassMat=
+new THREE.MeshPhongMaterial({
+
+    color:0x183b59,
+
+    transparent:true,
+
+    opacity:.78,
+
+    shininess:100
+
+});
+
+
+/*
+   ANTES:
+   amarillo
+
+   AHORA:
+   azul/cian
+*/
+
+const ledBlueMat=
+new THREE.MeshBasicMaterial({
+    color:0x009dff
+});
+
+
+const highlightMat=
+new THREE.MeshBasicMaterial({
+    color:0x00f6ff
+});
+
+
+const concreteMat=
+new THREE.MeshStandardMaterial({
+
+    color:0x1b2028,
+
+    roughness:.8
+
+});
+
+
+const roadMat=
+new THREE.MeshStandardMaterial({
+
+    color:0x080b10,
+
+    roughness:.95
+
+});
+
+
+const asphaltMat=
+new THREE.MeshStandardMaterial({
+
+    color:0x10151c,
+
+    roughness:.85
+
+});
+
+
+const sidewalkMat=
+new THREE.MeshStandardMaterial({
+
+    color:0x303741,
+
+    roughness:.85
+
+});
+
+
+const blueMetal=
+new THREE.MeshStandardMaterial({
+
+    color:0x008fd0,
+
+    metalness:.85,
+
+    roughness:.2
+
+});
+
+
+const whiteMat=
+new THREE.MeshStandardMaterial({
+
+    color:0xbfc7ce,
+
+    roughness:.7
+
+});
+
+
+const windowLightMat=
+new THREE.MeshBasicMaterial({
+
+    color:0x6edcff
+
+});
+
+
+const treeMat=
+new THREE.MeshStandardMaterial({
+
+    color:0x123b20,
+
+    roughness:1
+
+});
+
+
+const trunkMat=
+new THREE.MeshStandardMaterial({
+
+    color:0x3b281c,
+
+    roughness:1
+
+});
+
+
+/* =====================================================
+   FORMA ORIGINAL DE LA BINAES
+===================================================== */
+
+function createBinaesShape(){
+
+    const shape=
+    new THREE.Shape();
+
+    shape.moveTo(-18,-8);
+
+    shape.lineTo(-8,-8);
+
+    shape.lineTo(-5,6);
+
+    shape.lineTo(5,6);
+
+    shape.lineTo(8,-8);
+
+    shape.lineTo(18,-8);
+
+    shape.lineTo(15,12);
+
+    shape.lineTo(-15,12);
+
+    shape.closePath();
+
+    return shape;
+}
+
+
+const binaesGroup=
+new THREE.Group();
+
+const floorShape=
+createBinaesShape();
+
+const levelMeshes=[];
+
+
+/* =====================================================
+   NIVELES BINAES
+===================================================== */
+
+for(
+    let i=0;
+    i<=7;
+    i++
+){
+
+    const isBase=
+    i===0;
+
+    const scaleX=
+    isBase ?
+    1 :
+    1+(i*.03);
+
+    const scaleZ=
+    isBase ?
+    1 :
+    1+(i*.02);
+
+    const levelHeight=3;
+
+
+    /* CUERPO */
+
+    const glassGeo=
+    new THREE.ExtrudeGeometry(
+        floorShape,
+        {
+            depth:
+            levelHeight-.4,
+
+            bevelEnabled:false
+        }
+    );
+
+
+    const glassMesh=
+    new THREE.Mesh(
+        glassGeo,
+        glassMat
+    );
+
+    glassMesh.rotation.x=
+    Math.PI/2;
+
+    glassMesh.scale.set(
+        scaleX,
+        scaleZ,
+        1
+    );
+
+    glassMesh.position.y=
+    i*levelHeight+.5;
+
+
+    /* BORDE AZUL */
+
+    const ledGeo=
+    new THREE.ExtrudeGeometry(
+        floorShape,
+        {
+            depth:.3,
+
+            bevelEnabled:false
+        }
+    );
+
+
+    const ledMesh=
+    new THREE.Mesh(
+        ledGeo,
+        ledBlueMat
+    );
+
+    ledMesh.rotation.x=
+    Math.PI/2;
+
+    ledMesh.scale.set(
+        scaleX*1.02,
+        scaleZ*1.02,
+        1
+    );
+
+    ledMesh.position.y=
+    i*levelHeight;
+
+
+    /* GRUPO */
+
+    const levelGroup=
+    new THREE.Group();
+
+    levelGroup.add(
+        glassMesh
+    );
+
+    levelGroup.add(
+        ledMesh
+    );
+
+
+    levelGroup.userData={
+        levelIndex:i,
+        ledMesh:ledMesh
+    };
+
+
+    levelMeshes.push(
+        levelGroup
+    );
+
+    binaesGroup.add(
+        levelGroup
+    );
+
+}
+
+
+/* =====================================================
+   TERRAZAS
+===================================================== */
+
+for(
+    let t=0;
+    t<5;
+    t++
+){
+
+    const terrace=
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            10-(t*.5),
+            .3,
+            6
+        ),
+
+        concreteMat
+
+    );
+
+    terrace.position.set(
+
+        0,
+
+        t*3.2+4,
+
+        3-(t*.8)
+
+    );
+
+    binaesGroup.add(
+        terrace
+    );
+}
+
+
+/* =====================================================
+   BASE
+===================================================== */
+
+const base=
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        42,
+        1.5,
+        28
+    ),
+
+    concreteMat
+
+);
+
+base.position.set(
+    0,
+    .75,
+    2
+);
+
+binaesGroup.add(
+    base
+);
+
+
+/* =====================================================
+   ENTRADA
+===================================================== */
+
+const entrance=
+new THREE.Group();
+
+
+/* Marco azul */
+
+const frame=
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        10,
+        2.6,
+        .25
+    ),
+
+    blueMetal
+
+);
+
+frame.position.set(
+    0,
+    2.8,
+    -7.9
+);
+
+entrance.add(
+    frame
+);
+
+
+/* Puertas */
+
+const door1=
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        4.5,
+        2.4,
+        .1
+    ),
+
+    glassMat
+
+);
+
+door1.position.set(
+    -2.2,
+    2.7,
+    -8
+);
+
+entrance.add(
+    door1
+);
+
+
+const door2=
+door1.clone();
+
+door2.position.x=2.2;
+
+entrance.add(
+    door2
+);
+
+
+/* =====================================================
+   ESCALERAS FRONTALES
+===================================================== */
+
+const steps=6;
+
+const stepWidth=14;
+
+const stepHeight=.3;
+
+const stepDepth=1;
+
+
+for(
+    let s=0;
+    s<steps;
+    s++
+){
+
+    const step=
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            stepWidth+
+            s*.5,
+
+            stepHeight,
+
+            stepDepth
+        ),
+
+        concreteMat
+
+    );
+
+    /*
+       NEGATIVO Z
+       = FRENTE
+    */
+
+    step.position.set(
+
+        0,
+
+        s*stepHeight+
+        stepHeight/2,
+
+        -10-
+        s*.9
+
+    );
+
+    entrance.add(
+        step
+    );
+}
+
+
+/* =====================================================
+   BARANDILLAS AZULES
+===================================================== */
+
+function createHandrail(x){
+
+    const group=
+    new THREE.Group();
+
+
+    const rail=
+    new THREE.Mesh(
+
+        new THREE.CylinderGeometry(
+            .08,
+            .08,
+            5
+        ),
+
+        blueMetal
+
+    );
+
+    rail.rotation.x=
+    -Math.PI/4;
+
+    rail.position.set(
+        x,
+        1.8,
+        -12
+    );
+
+    group.add(
+        rail
+    );
+
+
+    for(
+        let i=0;
+        i<3;
+        i++
+    ){
+
+        const post=
+        new THREE.Mesh(
+
+            new THREE.CylinderGeometry(
+                .06,
+                .06,
+                1.2
+            ),
+
+            blueMetal
+
+        );
+
+        post.position.set(
+
+            x,
+
+            .6+
+
+            i*.3,
+
+            -10-
+
+            i*1.6
+
+        );
+
+        group.add(
+            post
+        );
+    }
+
+
+    return group;
+}
+
+
+entrance.add(
+    createHandrail(-7)
+);
+
+entrance.add(
+    createHandrail(7)
+);
+
+
+binaesGroup.add(
+    entrance
+);
+
+
+/* =====================================================
+   LETRERO BINAES
+===================================================== */
+
+function createTextSprite(text){
+
+    const canvas=
+    document.createElement(
+        "canvas"
+    );
+
+    canvas.width=1024;
+
+    canvas.height=180;
+
+    const ctx=
+    canvas.getContext("2d");
+
+    ctx.fillStyle="#00d9ff";
+
+    ctx.font=
+    "bold 58px Arial";
+
+    ctx.textAlign="center";
+
+    ctx.fillText(
+        text,
+        512,
+        110
+    );
+
+
+    const texture=
+    new THREE.CanvasTexture(
+        canvas
+    );
+
+
+    const material=
+    new THREE.SpriteMaterial({
+        map:texture,
+        transparent:true
+    });
+
+
+    const sprite=
+    new THREE.Sprite(
+        material
+    );
+
+    sprite.scale.set(
+        14,
+        2.5,
+        1
+    );
+
+    return sprite;
+}
+
+
+const sign=
+createTextSprite(
+    "BIBLIOTECA NACIONAL"
+);
+
+sign.position.set(
+    0,
+    5.3,
+    -8.5
+);
+
+binaesGroup.add(
+    sign
+);
+
+
+scene.add(
+    binaesGroup
+);
+
+
+/* =====================================================
+   PLAZA ENFRENTE
+===================================================== */
+
+const plaza=
+new THREE.Mesh(
+
+    new THREE.PlaneGeometry(
+        120,
+        65
+    ),
+
+    new THREE.MeshStandardMaterial({
+
+        color:0x252b31,
+
+        roughness:.9
+
+    })
+
+);
+
+plaza.rotation.x=
+-Math.PI/2;
+
+
+/*
+    También cambiamos la plaza
+    hacia Z NEGATIVO porque
+    ahora es el frente.
+*/
+
+plaza.position.set(
+    0,
+    -.03,
+    -40
+);
+
+scene.add(
+    plaza
+);
+
+
+/* =====================================================
+   CAMINO CENTRAL
+===================================================== */
+
+const path=
+new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+        14,
+        .08,
+        38
+    ),
+
+    new THREE.MeshStandardMaterial({
+
+        color:0x636a72,
+
+        roughness:.9
+
+    })
+
+);
+
+path.position.set(
+    0,
+    .04,
+    -31
+);
+
+scene.add(
+    path
+);
+
+
+/* =====================================================
+   JARDINES
+===================================================== */
+
+function createGarden(x,z){
+
+    const garden=
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            10,
+            .25,
+            6
+        ),
+
+        new THREE.MeshStandardMaterial({
+
+            color:0x14351d,
+
+            roughness:1
+
+        })
+
+    );
+
+    garden.position.set(
+        x,
+        .12,
+        z
+    );
+
+    scene.add(
+        garden
+    );
+}
+
+
+createGarden(-25,-38);
+
+createGarden(25,-38);
+
+createGarden(-30,-52);
+
+createGarden(30,-52);
+
+
+/* =====================================================
+   ARBOLES
+===================================================== */
+
+function createTree(
+    x,
+    z,
+    scale=1
+){
+
+    const trunk=
+    new THREE.Mesh(
+
+        new THREE.CylinderGeometry(
+            .22*scale,
+            .32*scale,
+            2.8*scale
+        ),
+
+        trunkMat
+
+    );
+
+    trunk.position.set(
+        x,
+        1.4*scale,
+        z
+    );
+
+
+    const crown=
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            1.7*scale,
+            12,
+            12
+        ),
+
+        treeMat
+
+    );
+
+    crown.position.set(
+        x,
+        3.4*scale,
+        z
+    );
+
+
+    scene.add(
+        trunk
+    );
+
+    scene.add(
+        crown
+    );
+}
+
+
+createTree(-25,-39,1);
+
+createTree(25,-39,1);
+
+createTree(-35,-53,1.1);
+
+createTree(35,-53,1.1);
+
+createTree(-45,-47,.9);
+
+createTree(45,-47,.9);
+
+createTree(-48,-65,1.1);
+
+createTree(48,-65,1.1);
+
+
+/* =====================================================
+   BANCAS
+===================================================== */
+
+function createBench(x,z){
+
+    const seat=
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            3,
+            .25,
+            .65
+        ),
+
+        new THREE.MeshStandardMaterial({
+
+            color:0x4b3526,
+
+            roughness:1
+
+        })
+
+    );
+
+    seat.position.set(
+        x,
+        1,
+        z
+    );
+
+    scene.add(
+        seat
+    );
+
+
+    for(
+        const px of
+        [x-1.1,x+1.1]
+    ){
+
+        const leg=
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                .15,
+                1,
+                .15
+            ),
+
+            concreteMat
+
+        );
+
+        leg.position.set(
+            px,
+            .5,
+            z
+        );
+
+        scene.add(
+            leg
+        );
+    }
+}
+
+
+createBench(-18,-45);
+
+createBench(18,-45);
+
+createBench(-30,-59);
+
+createBench(30,-59);
+
+
+/* =====================================================
+   FUENTE
+===================================================== */
+
+const fountain=
+new THREE.Mesh(
+
+    new THREE.CylinderGeometry(
+        4.2,
+        4.6,
+        .5,
+        32
+    ),
+
+    concreteMat
+
+);
+
+fountain.position.set(
+    0,
+    .3,
+    -60
+);
+
+scene.add(
+    fountain
+);
+
+
+const water=
+new THREE.Mesh(
+
+    new THREE.CylinderGeometry(
+        3.7,
+        3.7,
+        .08,
+        32
+    ),
+
+    new THREE.MeshPhongMaterial({
+
+        color:0x008fd0,
+
+        transparent:true,
+
+        opacity:.8
+
+    })
+
+);
+
+water.position.set(
+    0,
+    .58,
+    -60
+);
+
+scene.add(
+    water
+);
+
+
+/* =====================================================
+   BANDERAS
+===================================================== */
+
+function createFlag(x){
+
+    const pole=
+    new THREE.Mesh(
+
+        new THREE.CylinderGeometry(
+            .07,
+            .07,
+            8
+        ),
+
+        new THREE.MeshStandardMaterial({
+
+            color:0xc8d0d8,
+
+            metalness:.7
+
+        })
+
+    );
+
+    pole.position.set(
+        x,
+        4,
+        -6
+    );
+
+    scene.add(
+        pole
+    );
+
+
+    /*
+       Tres franjas de El Salvador
+    */
+
+    const colors=[
+        0x1558a5,
+        0xffffff,
+        0x1558a5
+    ];
+
+
+    colors.forEach(
+        (color,index)=>{
+
+            const stripe=
+            new THREE.Mesh(
+
+                new THREE.BoxGeometry(
+                    4,
+                    .65,
+                    .06
+                ),
+
+                new THREE.MeshBasicMaterial({
+                    color:color
+                })
+
+            );
+
+            stripe.position.set(
+                x+2,
+                7-index*.65,
+                -6
+            );
+
+            scene.add(
+                stripe
+            );
+
+        }
+    );
+}
+
+
+createFlag(-13);
+
+createFlag(13);
+
+
+/* =====================================================
+   CALLE DEL FRENTE
+===================================================== */
+
+const street=
+new THREE.Mesh(
+
+    new THREE.PlaneGeometry(
+        180,
+        16
+    ),
+
+    asphaltMat
+
+);
+
+street.rotation.x=
+-Math.PI/2;
+
+street.position.set(
+    0,
+    .02,
+    -75
+);
+
+scene.add(
+    street
+);
+
+
+/* =====================================================
+   LINEAS DE CALLE
+===================================================== */
+
+for(
+    let x=-85;
+    x<=85;
+    x+=10
+){
+
+    const line=
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            5,
+            .03,
+            .18
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0xffffff
+        })
+
+    );
+
+    line.position.set(
+        x,
+        .07,
+        -75
+    );
+
+    scene.add(
+        line
+    );
+}
+
+
+/* =====================================================
+   EDIFICIOS ALREDEDOR
+===================================================== */
+
+function createBuilding(
+    x,
+    z,
+    w,
+    h,
+    d
+){
+
+    const building=
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            w,
+            h,
+            d
+        ),
+
+        new THREE.MeshStandardMaterial({
+
+            color:0x303840,
+
+            roughness:.9
+
+        })
+
+    );
+
+    building.position.set(
+        x,
+        h/2,
+        z
+    );
+
+    scene.add(
+        building
+    );
+
+
+    for(
+        let y=3;
+        y<h-1;
+        y+=3
+    ){
+
+        const windows=
+        new THREE.Mesh(
+
+            new THREE.BoxGeometry(
+                w*.65,
+                .65,
+                .08
+            ),
+
+            windowLightMat
+
+        );
+
+        windows.position.set(
+            x,
+            y,
+            z+d/2+.04
+        );
+
+        scene.add(
+            windows
+        );
+    }
+}
+
+
+createBuilding(
+    -45,
+    -15,
+    18,
+    13,
+    17
+);
+
+createBuilding(
+    45,
+    -15,
+    18,
+    15,
+    17
+);
+
+createBuilding(
+    -55,
+    -45,
+    16,
+    11,
+    15
+);
+
+createBuilding(
+    55,
+    -45,
+    16,
+    14,
+    15
+);
+
+
+/* =====================================================
+   FAROLES AZULES
+===================================================== */
+
+function createLamp(x,z){
+
+    const pole=
+    new THREE.Mesh(
+
+        new THREE.CylinderGeometry(
+            .08,
+            .12,
+            4.5
+        ),
+
+        concreteMat
+
+    );
+
+    pole.position.set(
+        x,
+        2.25,
+        z
+    );
+
+    scene.add(
+        pole
+    );
+
+
+    const bulb=
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            .32,
+            12,
+            12
+        ),
+
+        new THREE.MeshBasicMaterial({
+            color:0x19d9ff
+        })
+
+    );
+
+    bulb.position.set(
+        x,
+        4.5,
+        z
+    );
+
+    scene.add(
+        bulb
+    );
+
+
+    const light=
+    new THREE.PointLight(
+        0x00bfff,
+        .8,
+        17
+    );
+
+    light.position.set(
+        x,
+        4.5,
+        z
+    );
+
+    scene.add(
+        light
+    );
+}
+
+
+for(
+    let x=-40;
+    x<=40;
+    x+=16
+){
+
+    createLamp(
+        x,
+        -28
+    );
+
+    createLamp(
+        x,
+        -61
+    );
+
+}
+
+
+/* =====================================================
+   AUTOS
+===================================================== */
+
+function createCar(
+    x,
+    z,
+    rotation=0
+){
+
+    const car=
+    new THREE.Group();
+
+
+    const body=
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            4,
+            .8,
+            1.8
+        ),
+
+        new THREE.MeshStandardMaterial({
+
+            color:0x252d35,
+
+            metalness:.5,
+
+            roughness:.35
+
+        })
+
+    );
+
+    body.position.y=.8;
+
+    car.add(
+        body
+    );
+
+
+    const roof=
+    new THREE.Mesh(
+
+        new THREE.BoxGeometry(
+            2,
+            .65,
+            1.5
+        ),
+
+        glassMat
+
+    );
+
+    roof.position.y=1.45;
+
+    car.add(
+        roof
+    );
+
+
+    const wheelMat=
+    new THREE.MeshStandardMaterial({
+        color:0x050505
+    });
+
+
+    for(
+        const wx of [-1.3,1.3]
+    ){
+
+        for(
+            const wz of [-.85,.85]
+        ){
+
+            const wheel=
+            new THREE.Mesh(
+
+                new THREE.CylinderGeometry(
+                    .38,
+                    .38,
+                    .22,
+                    12
+                ),
+
+                wheelMat
+
+            );
+
+            wheel.rotation.z=
+            Math.PI/2;
+
+            wheel.position.set(
+                wx,
+                .45,
+                wz
+            );
+
+            car.add(
+                wheel
+            );
+        }
+    }
+
+
+    car.position.set(
+        x,
+        0,
+        z
+    );
+
+    car.rotation.y=
+    rotation;
+
+    scene.add(
+        car
+    );
+}
+
+
+createCar(
+    -25,
+    -75,
+    0
+);
+
+createCar(
+    20,
+    -75,
+    Math.PI
+);
+
+createCar(
+    45,
+    -75,
+    Math.PI
+);
+
+
+/* =====================================================
+   PERSONAS
+===================================================== */
+
+function createPerson(x,z){
+
+    const group=
+    new THREE.Group();
+
+
+    const body=
+    new THREE.Mesh(
+
+        new THREE.CylinderGeometry(
+            .22,
+            .3,
+            1.5,
+            8
+        ),
+
+        new THREE.MeshStandardMaterial({
+
+            color:0x17618a
+
+        })
+
+    );
+
+    body.position.y=.85;
+
+    group.add(
+        body
+    );
+
+
+    const head=
+    new THREE.Mesh(
+
+        new THREE.SphereGeometry(
+            .27,
+            10,
+            10
+        ),
+
+        new THREE.MeshStandardMaterial({
+
+            color:0xc58c6b
+
+        })
+
+    );
+
+    head.position.y=1.85;
+
+    group.add(
+        head
+    );
+
+
+    group.position.set(
+        x,
+        0,
+        z
+    );
+
+    scene.add(
+        group
+    );
+}
+
+
+createPerson(-8,-28);
+
+createPerson(8,-30);
+
+createPerson(-20,-45);
+
+createPerson(20,-45);
+
+createPerson(4,-55);
+
+createPerson(-5,-57);
+
+
+/* =====================================================
+   SELECCIONAR NIVEL
+===================================================== */
+
+function selectFloor(floorNum){
+
+    document.getElementById(
+        "floor-title"
+    ).innerText=
+    binaesData[floorNum].title;
+
+
+    document.getElementById(
+        "floor-desc"
+    ).innerText=
+    binaesData[floorNum].desc;
+
+
+    /* Botones */
+
+    document
+    .querySelectorAll(
+        ".btn-floor"
+    )
+    .forEach(
+        (button,index)=>{
+
+            const level=
+            7-index;
+
+            button.classList.toggle(
+                "active",
+                level===floorNum
+            );
+
+        }
+    );
+
+
+    /* Color del nivel */
+
+    levelMeshes.forEach(
+        group=>{
+
+            const led=
+            group.userData.ledMesh;
+
+
+            if(
+                group.userData.levelIndex
+                ===floorNum
+            ){
+
+                led.material=
+                highlightMat;
+
+            }else{
+
+                led.material=
+                ledBlueMat;
+
+            }
+
+        }
+    );
+
+
+    /* Cámara */
+
+    const targetY=
+    floorNum*3+3;
+
+    controls.target.set(
+        0,
+        targetY,
+        0
+    );
+}
+
+
+/* =====================================================
+   ANIMACION
+===================================================== */
+
+function animate(){
+
+    requestAnimationFrame(
+        animate
+    );
+
+    controls.update();
+
+    renderer.render(
+        scene,
+        camera
+    );
+}
+
+
+animate();
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+window.addEventListener(
+    "resize",
+    ()=>{
+
+        camera.aspect=
+        window.innerWidth/
+        window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
+        );
+
+    }
+);
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+selectFloor(1);
+
+</script>
+
+</body>
+</html>
